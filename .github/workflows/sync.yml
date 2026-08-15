@@ -15,26 +15,10 @@ jobs:
           token: ${{ secrets.PAT }}
           fetch-depth: 0
 
-      - name: Setup gh CLI
-        run: |
-          echo "deb [trusted=yes] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
-          sudo apt update
-          sudo apt install gh -y
-
-      - name: Authenticate gh
-        run: echo "${{ secrets.PAT }}" | gh auth login --with-token
-
-      - name: Sync all tags
-        run: |
-          git remote add upstream https://github.com/blingbling-bow/HugoAura-Enhanced
-          git fetch upstream --tags
-          git push origin --tags
-
-      - name: Sync all releases and create releases for all tags
-        run: |
-          gh release list -R blingbling-bow/HugoAura-Enhanced --limit 100 --json tagName | jq -r '.[].tagName' | while read tag; do
-            echo "Processing release: $tag"
-            gh release download "$tag" -R blingbling-bow/HugoAura-Enhanced -D ./assets --clobber || true
-            gh release create "$tag" ./assets/* --repo CYX-admin/HugoAura-Enhanced --title "$tag" --notes "Synced from upstream" || true
-            rm -rf ./assets/*
-          done
+      - name: Sync releases (robust)
+        uses: andrewthetechie/gha-clone-releases@v1
+        with:
+          token: ${{ secrets.PAT }}
+          src_repo: blingbling-bow/HugoAura-Enhanced
+          copy_assets: true
+          include_prerelease: true
