@@ -21,4 +21,4 @@ jobs:
           token: ${{ secrets.PAT }}
           src_repo: blingbling-bow/HugoAura-Enhanced
           copy_assets: true
-          include_prerelease: true
+          
